@@ -1,0 +1,10 @@
+# Doppler is capped at 10 projects on the free plan and the workplace is full,
+# so clipworks has no project of its own. It borrows philosopher-pipeline/dev,
+# which already holds exactly the secrets clipworks needs: GROQ_API_KEY for
+# publikclip's scoring calls, plus INSTAGRAM_USERNAME / INSTAGRAM_PASSWORD.
+#
+# Revisit when a slot frees up (see the h-clipworks-doppler-slot handoff).
+# Reminder: this file alone does nothing. Run `doppler setup` in this dir.
+setup:
+  project: philosopher-pipeline
+  config: dev
