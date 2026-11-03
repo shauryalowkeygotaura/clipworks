@@ -60,7 +60,7 @@ class WhopClient:
         if not bounty:
             return SubmitOutcome(MANUAL, message="Content Rewards has no submission API")
         if not self.available():
-            return SubmitOutcome(MANUAL, message="WHOP_USER_TOKEN not set; submit by hand")
+            return SubmitOutcome(MANUAL, message="CLIPWORKS_WHOP_USER_TOKEN not set; submit by hand")
         try:
             body = self.http.post(
                 f"{API}/bounty_submissions",

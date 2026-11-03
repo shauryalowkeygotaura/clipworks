@@ -7,9 +7,9 @@ forever. No google-api-python-client: the upload is two HTTP calls.
 Quota: an upload costs 1,600 of the default 10,000 daily units. The default
 cadence (3/day) leaves headroom for the stats reads reconciliation makes.
 
-Env: YT_CLIENT_ID, YT_CLIENT_SECRET, YT_REFRESH_TOKEN, optional
-YOUTUBE_API_KEY (for view counts; the upload scope cannot read stats),
-optional YT_PRIVACY (default public).
+Env: CLIPWORKS_YT_CLIENT_ID, CLIPWORKS_YT_CLIENT_SECRET, CLIPWORKS_YT_REFRESH_TOKEN, optional
+CLIPWORKS_YOUTUBE_API_KEY (for view counts; the upload scope cannot read stats),
+optional CLIPWORKS_YT_PRIVACY (default public).
 """
 from __future__ import annotations
 
@@ -38,23 +38,23 @@ class YouTubePoster:
 
     @classmethod
     def from_env(cls, http: Http, env: dict[str, str] | None = None) -> "YouTubePoster":
-        privacy = env_get(env, "YT_PRIVACY", "public")
+        privacy = env_get(env, "CLIPWORKS_YT_PRIVACY", "public")
         if privacy not in VALID_PRIVACY:
-            raise ValueError(f"YT_PRIVACY must be one of {sorted(VALID_PRIVACY)}, got {privacy!r}")
+            raise ValueError(f"CLIPWORKS_YT_PRIVACY must be one of {sorted(VALID_PRIVACY)}, got {privacy!r}")
         return cls(
             http=http,
-            client_id=env_get(env, "YT_CLIENT_ID"),
-            client_secret=env_get(env, "YT_CLIENT_SECRET"),
-            refresh_token=env_get(env, "YT_REFRESH_TOKEN"),
-            api_key=env_get(env, "YOUTUBE_API_KEY"),
+            client_id=env_get(env, "CLIPWORKS_YT_CLIENT_ID"),
+            client_secret=env_get(env, "CLIPWORKS_YT_CLIENT_SECRET"),
+            refresh_token=env_get(env, "CLIPWORKS_YT_REFRESH_TOKEN"),
+            api_key=env_get(env, "CLIPWORKS_YOUTUBE_API_KEY"),
             privacy=privacy,
         )
 
     def missing_config(self) -> list[str]:
         pairs = (
-            ("YT_CLIENT_ID", self.client_id),
-            ("YT_CLIENT_SECRET", self.client_secret),
-            ("YT_REFRESH_TOKEN", self.refresh_token),
+            ("CLIPWORKS_YT_CLIENT_ID", self.client_id),
+            ("CLIPWORKS_YT_CLIENT_SECRET", self.client_secret),
+            ("CLIPWORKS_YT_REFRESH_TOKEN", self.refresh_token),
         )
         return [k for k, v in pairs if not v]
 

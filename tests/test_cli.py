@@ -9,8 +9,8 @@ from test_intake import BRIEF
 
 @pytest.fixture
 def home(tmp_path, monkeypatch):
-    for k in ("IG_USER_ID", "IG_ACCESS_TOKEN", "YT_CLIENT_ID", "TIKTOK_CLIENT_KEY", "DISCORD_WEBHOOK_URL",
-              "DISCORD_BOT_TOKEN", "WHOP_USER_TOKEN", "PUBLIKCLIP_DIR"):
+    for k in ("CLIPWORKS_IG_USER_ID", "CLIPWORKS_IG_ACCESS_TOKEN", "CLIPWORKS_YT_CLIENT_ID", "CLIPWORKS_TIKTOK_CLIENT_KEY", "CLIPWORKS_DISCORD_WEBHOOK_URL",
+              "CLIPWORKS_DISCORD_BOT_TOKEN", "CLIPWORKS_WHOP_USER_TOKEN", "PUBLIKCLIP_DIR"):
         monkeypatch.delenv(k, raising=False)
     monkeypatch.setenv("CLIPWORKS_HOME", str(tmp_path))
     return tmp_path

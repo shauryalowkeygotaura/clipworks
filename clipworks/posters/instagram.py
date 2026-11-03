@@ -10,7 +10,7 @@ instagram_manage_insights, and a long-lived token. Long-lived tokens expire
 after ~60 days; a 190 error from Graph means it is time to mint a new one,
 and the pipeline surfaces exactly that instead of a raw stack trace.
 
-Env: IG_USER_ID, IG_ACCESS_TOKEN, optional IG_GRAPH_VERSION.
+Env: CLIPWORKS_IG_USER_ID, CLIPWORKS_IG_ACCESS_TOKEN, optional CLIPWORKS_IG_GRAPH_VERSION.
 """
 from __future__ import annotations
 
@@ -37,13 +37,13 @@ class InstagramPoster:
     def from_env(cls, http: Http, env: dict[str, str] | None = None) -> "InstagramPoster":
         return cls(
             http=http,
-            user_id=env_get(env, "IG_USER_ID"),
-            token=env_get(env, "IG_ACCESS_TOKEN"),
-            version=env_get(env, "IG_GRAPH_VERSION", "v23.0"),
+            user_id=env_get(env, "CLIPWORKS_IG_USER_ID"),
+            token=env_get(env, "CLIPWORKS_IG_ACCESS_TOKEN"),
+            version=env_get(env, "CLIPWORKS_IG_GRAPH_VERSION", "v23.0"),
         )
 
     def missing_config(self) -> list[str]:
-        return [k for k, v in (("IG_USER_ID", self.user_id), ("IG_ACCESS_TOKEN", self.token)) if not v]
+        return [k for k, v in (("CLIPWORKS_IG_USER_ID", self.user_id), ("CLIPWORKS_IG_ACCESS_TOKEN", self.token)) if not v]
 
     def _url(self, path: str) -> str:
         return f"{GRAPH}/{self.version}/{path.lstrip('/')}"

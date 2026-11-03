@@ -14,8 +14,8 @@ says so rather than pretending: inbox results carry needs_manual_publish.
 Access tokens live 24h; refresh tokens rotate. The rotated refresh token is
 persisted to <state_dir>/tiktok_token.json (mode 0600) so the next run works.
 
-Env: TIKTOK_CLIENT_KEY, TIKTOK_CLIENT_SECRET, TIKTOK_REFRESH_TOKEN,
-optional TIKTOK_MODE (inbox|direct), TIKTOK_PRIVACY (direct mode only).
+Env: CLIPWORKS_TIKTOK_CLIENT_KEY, CLIPWORKS_TIKTOK_CLIENT_SECRET, CLIPWORKS_TIKTOK_REFRESH_TOKEN,
+optional CLIPWORKS_TIKTOK_MODE (inbox|direct), CLIPWORKS_TIKTOK_PRIVACY (direct mode only).
 """
 from __future__ import annotations
 
@@ -48,16 +48,16 @@ class TikTokPoster:
 
     @classmethod
     def from_env(cls, http: Http, env: dict[str, str] | None = None, state_dir: Path | None = None) -> "TikTokPoster":
-        mode = env_get(env, "TIKTOK_MODE", "inbox")
+        mode = env_get(env, "CLIPWORKS_TIKTOK_MODE", "inbox")
         if mode not in VALID_MODES:
-            raise ValueError(f"TIKTOK_MODE must be one of {sorted(VALID_MODES)}, got {mode!r}")
+            raise ValueError(f"CLIPWORKS_TIKTOK_MODE must be one of {sorted(VALID_MODES)}, got {mode!r}")
         poster = cls(
             http=http,
-            client_key=env_get(env, "TIKTOK_CLIENT_KEY"),
-            client_secret=env_get(env, "TIKTOK_CLIENT_SECRET"),
-            refresh_token=env_get(env, "TIKTOK_REFRESH_TOKEN"),
+            client_key=env_get(env, "CLIPWORKS_TIKTOK_CLIENT_KEY"),
+            client_secret=env_get(env, "CLIPWORKS_TIKTOK_CLIENT_SECRET"),
+            refresh_token=env_get(env, "CLIPWORKS_TIKTOK_REFRESH_TOKEN"),
             mode=mode,
-            privacy=env_get(env, "TIKTOK_PRIVACY", "PUBLIC_TO_EVERYONE"),
+            privacy=env_get(env, "CLIPWORKS_TIKTOK_PRIVACY", "PUBLIC_TO_EVERYONE"),
             state_dir=Path(state_dir) if state_dir else None,
         )
         stored = poster._stored_refresh_token()
@@ -67,9 +67,9 @@ class TikTokPoster:
 
     def missing_config(self) -> list[str]:
         pairs = (
-            ("TIKTOK_CLIENT_KEY", self.client_key),
-            ("TIKTOK_CLIENT_SECRET", self.client_secret),
-            ("TIKTOK_REFRESH_TOKEN", self.refresh_token),
+            ("CLIPWORKS_TIKTOK_CLIENT_KEY", self.client_key),
+            ("CLIPWORKS_TIKTOK_CLIENT_SECRET", self.client_secret),
+            ("CLIPWORKS_TIKTOK_REFRESH_TOKEN", self.refresh_token),
         )
         return [k for k, v in pairs if not v]
 

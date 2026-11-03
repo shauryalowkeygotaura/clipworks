@@ -140,8 +140,8 @@ def test_tiktok_rotated_refresh_token_is_persisted(mp4, tmp_path):
     http = FakeHttp().on("POST", r"/oauth/token/", {"access_token": "AT", "refresh_token": "NEW"}) \
         .on("POST", r"/init/", {"data": {"publish_id": "p", "upload_url": "https://up.tt/1"}}).on("PUT", r"up", {})
     tt(http, tmp_path).post(mp4, "c", "t")
-    reloaded = TikTokPoster.from_env(FakeHttp(), env={"TIKTOK_CLIENT_KEY": "ck", "TIKTOK_CLIENT_SECRET": "cs",
-                                                      "TIKTOK_REFRESH_TOKEN": "OLD"}, state_dir=tmp_path)
+    reloaded = TikTokPoster.from_env(FakeHttp(), env={"CLIPWORKS_TIKTOK_CLIENT_KEY": "ck", "CLIPWORKS_TIKTOK_CLIENT_SECRET": "cs",
+                                                      "CLIPWORKS_TIKTOK_REFRESH_TOKEN": "OLD"}, state_dir=tmp_path)
     assert reloaded.refresh_token == "NEW"
 
 
@@ -160,4 +160,4 @@ def test_tiktok_direct_mode_returns_public_url(mp4, tmp_path):
 
 def test_tiktok_bad_mode_rejected():
     with pytest.raises(ValueError):
-        TikTokPoster.from_env(FakeHttp(), env={"TIKTOK_MODE": "yolo"})
+        TikTokPoster.from_env(FakeHttp(), env={"CLIPWORKS_TIKTOK_MODE": "yolo"})

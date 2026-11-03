@@ -43,6 +43,11 @@ uv run clipworks doctor      # shows exactly what is live, dry, or missing
 ```
 
 Secrets come from the environment (Doppler: `doppler run -- uv run clipworks cycle`).
+Every clipworks secret is prefixed `CLIPWORKS_`. clipworks shares the
+`philosopher-pipeline/dev` Doppler config (10-project cap), and an
+unprefixed `IG_ACCESS_TOKEN` there would one day be read by both projects:
+streamer clips posted to the philosopher account, or the reverse. The prefix
+makes that collision impossible instead of unlikely.
 Anything missing makes that integration a **dry run**: logged to
 `runs/dryrun.jsonl`, never written to the ledger.
 
@@ -50,16 +55,18 @@ Anything missing makes that integration a **dry run**: logged to
 |---|---|
 | publikclip | `PUBLIKCLIP_DIR`, optional `PUBLIKCLIP_VENV` |
 | YouTube cookies | `YTDLP_COOKIES_FROM_BROWSER=chrome` (only if bot-checked) |
-| Instagram | `IG_USER_ID`, `IG_ACCESS_TOKEN` (long-lived, ~60 days) |
-| YouTube | `YT_CLIENT_ID`, `YT_CLIENT_SECRET`, `YT_REFRESH_TOKEN`, `YOUTUBE_API_KEY` (for views) |
-| TikTok | `TIKTOK_CLIENT_KEY`, `TIKTOK_CLIENT_SECRET`, `TIKTOK_REFRESH_TOKEN`, `TIKTOK_MODE=inbox\|direct` |
-| Discord alerts | `DISCORD_WEBHOOK_URL` |
-| Discord brief intake | `DISCORD_BOT_TOKEN`, `DISCORD_BRIEF_CHANNEL_IDS=id1,id2` (enable Message Content intent) |
-| Whop bounties | `WHOP_USER_TOKEN` (user OAuth, scope `bounty:submission:create`) |
+| Instagram | `CLIPWORKS_IG_USER_ID`, `CLIPWORKS_IG_ACCESS_TOKEN` (long-lived, ~60 days) |
+| YouTube | `CLIPWORKS_YT_CLIENT_ID`, `CLIPWORKS_YT_CLIENT_SECRET`, `CLIPWORKS_YT_REFRESH_TOKEN`, `CLIPWORKS_YOUTUBE_API_KEY` (for views) |
+| TikTok | `CLIPWORKS_TIKTOK_CLIENT_KEY`, `CLIPWORKS_TIKTOK_CLIENT_SECRET`, `CLIPWORKS_TIKTOK_REFRESH_TOKEN`, `CLIPWORKS_TIKTOK_MODE=inbox\|direct` |
+| Discord alerts | `CLIPWORKS_DISCORD_WEBHOOK_URL` |
+| Discord brief intake | `CLIPWORKS_DISCORD_BOT_TOKEN`, `CLIPWORKS_DISCORD_BRIEF_CHANNEL_IDS=id1,id2` (enable Message Content intent) |
+| Whop bounties | `CLIPWORKS_WHOP_USER_TOKEN` (user OAuth, scope `bounty:submission:create`) |
 | Knobs | `CLIPWORKS_DRY_RUN=1`, `CLIPWORKS_WINDOW_UTC=12-23`, `CLIPWORKS_VIDEOS_PER_CYCLE=1`, `CLIPWORKS_MAX_PER_DAY_<PLATFORM>` |
 
 The YouTube refresh token: `football-shorts-autopilot/auth_youtube.py` mints it
-unchanged (same scope).
+unchanged (same scope). Sign in with the **clipping channel**, not the football
+one, and store the three values as `CLIPWORKS_YT_*`, not the `YT_*` names that
+script prints.
 
 ## Run it
 

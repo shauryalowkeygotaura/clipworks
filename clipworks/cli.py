@@ -59,9 +59,9 @@ def cmd_doctor(args) -> int:
         print(f"  {'LIVE' if not missing else 'dry '} {name}{note}" + (f"  missing: {', '.join(missing)}" if missing else ""))
 
     print("\nintegrations")
-    print(f"  {'on ' if s.discord_webhook else 'off'} discord notifications (DISCORD_WEBHOOK_URL)")
-    print(f"  {'on ' if deps.brief_reader.available() else 'off'} discord brief intake (DISCORD_BOT_TOKEN + DISCORD_BRIEF_CHANNEL_IDS)")
-    print(f"  {'on ' if s.whop_user_token else 'off'} whop bounty API (WHOP_USER_TOKEN); Content Rewards is always manual")
+    print(f"  {'on ' if s.discord_webhook else 'off'} discord notifications (CLIPWORKS_DISCORD_WEBHOOK_URL)")
+    print(f"  {'on ' if deps.brief_reader.available() else 'off'} discord brief intake (CLIPWORKS_DISCORD_BOT_TOKEN + CLIPWORKS_DISCORD_BRIEF_CHANNEL_IDS)")
+    print(f"  {'on ' if s.whop_user_token else 'off'} whop bounty API (CLIPWORKS_WHOP_USER_TOKEN); Content Rewards is always manual")
 
     print("\ncampaigns")
     report = Report()

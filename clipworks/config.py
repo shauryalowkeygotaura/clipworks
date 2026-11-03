@@ -57,7 +57,7 @@ class Settings:
     def from_env(cls, env: dict[str, str] | None = None) -> "Settings":
         env = dict(os.environ if env is None else env)
         pc = (env.get("PUBLIKCLIP_DIR") or "").strip()
-        channels = tuple(c.strip() for c in (env.get("DISCORD_BRIEF_CHANNEL_IDS") or "").split(",") if c.strip())
+        channels = tuple(c.strip() for c in (env.get("CLIPWORKS_DISCORD_BRIEF_CHANNEL_IDS") or "").split(",") if c.strip())
         return cls(
             home=Path(env.get("CLIPWORKS_HOME") or Path.cwd()).resolve(),
             publikclip_dir=Path(pc).expanduser() if pc else None,
@@ -67,9 +67,9 @@ class Settings:
             videos_per_cycle=_int(env, "CLIPWORKS_VIDEOS_PER_CYCLE", 1),
             max_resume_attempts=_int(env, "CLIPWORKS_MAX_RESUME_ATTEMPTS", 3),
             reconcile_days=_int(env, "CLIPWORKS_RECONCILE_DAYS", 30),
-            discord_webhook=(env.get("DISCORD_WEBHOOK_URL") or "").strip(),
-            discord_bot_token=(env.get("DISCORD_BOT_TOKEN") or "").strip(),
+            discord_webhook=(env.get("CLIPWORKS_DISCORD_WEBHOOK_URL") or "").strip(),
+            discord_bot_token=(env.get("CLIPWORKS_DISCORD_BOT_TOKEN") or "").strip(),
             discord_brief_channels=channels,
-            whop_user_token=(env.get("WHOP_USER_TOKEN") or "").strip(),
+            whop_user_token=(env.get("CLIPWORKS_WHOP_USER_TOKEN") or "").strip(),
             env=env,
         )
