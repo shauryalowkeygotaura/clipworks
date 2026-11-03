@@ -5,4 +5,4 @@ and rendering. This package owns everything after that: campaign compliance,
 caption text, scheduling, posting, and the earnings ledger.
 """
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"

@@ -70,6 +70,26 @@ def resolve(
     return out
 
 
+def resolve_with_origin(
+    campaign: Campaign,
+    seen: frozenset[str] = frozenset(),
+    cfg: ResolveConfig | None = None,
+) -> list[tuple[str, str]]:
+    """Like `resolve`, but each URL comes paired with the campaign source it
+    was expanded from. Compliance needs this provenance: a channel's videos
+    are allowed because the channel is, not because each URL is listed."""
+    cfg = cfg or ResolveConfig()
+    out: list[tuple[str, str]] = []
+    emitted: set[str] = set()
+    for source in sorted(campaign.allowed_sources):
+        for url in _expand(source, cfg):
+            if url in seen or url in emitted:
+                continue
+            emitted.add(url)
+            out.append((url, source))
+    return out
+
+
 def _expand(source: str, cfg: ResolveConfig) -> list[str]:
     if not _YOUTUBE_HOST.match(source):
         raise SourceError(

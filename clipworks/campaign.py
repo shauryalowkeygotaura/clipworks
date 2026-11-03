@@ -9,16 +9,19 @@ wrong platform or runs with a setting the brief forbids.
 """
 from __future__ import annotations
 
+import re
 from pathlib import Path
 from typing import Any
 
 import yaml
 
 from .models import (
+    CAMPAIGN_SOURCES,
     PLATFORMS,
     Campaign,
     PublikclipSettings,
     Rules,
+    WhopLink,
 )
 
 VALID_CAMERA = frozenset({"cut", "pan", "locked"})
@@ -82,7 +85,53 @@ def parse(raw: dict[str, Any], origin: str = "<dict>") -> Campaign:
         publikclip=_parse_publikclip(raw.get("publikclip"), origin),
         rate_per_1k_views_usd=_optional_float(raw.get("payout"), "rate_per_1k_views_usd", origin),
         budget_remaining_usd=_optional_float(raw.get("payout"), "budget_remaining_usd", origin),
+        cadence=_parse_cadence(raw.get("cadence"), platforms, origin),
+        source_kind=_parse_source_kind(raw.get("source_kind", "whop"), origin),
+        whop=_parse_whop(raw.get("whop"), origin),
     )
+
+
+def _parse_cadence(raw: Any, platforms: tuple[str, ...], origin: str) -> tuple[tuple[str, int], ...]:
+    if raw is None:
+        return ()
+    if not isinstance(raw, dict):
+        raise CampaignError(f"{origin}: 'cadence' must map platform -> posts_per_day")
+    out: list[tuple[str, int]] = []
+    for name, n in raw.items():
+        if name not in platforms:
+            raise CampaignError(
+                f"{origin}: cadence names {name!r}, which is not in this campaign's platforms"
+            )
+        if isinstance(n, bool) or not isinstance(n, int) or n < 0:
+            raise CampaignError(f"{origin}: cadence.{name} must be a non-negative integer")
+        out.append((name, n))
+    return tuple(out)
+
+
+def _parse_source_kind(raw: Any, origin: str) -> str:
+    if raw not in CAMPAIGN_SOURCES:
+        raise CampaignError(
+            f"{origin}: source_kind must be one of {sorted(CAMPAIGN_SOURCES)}, got {raw!r}"
+        )
+    return raw
+
+
+_BOUNTY_ID = re.compile(r"^bnty_[A-Za-z0-9]+$")
+_WHOP_URL = re.compile(r"^https://(www\.)?whop\.com/", re.IGNORECASE)
+
+
+def _parse_whop(raw: Any, origin: str) -> WhopLink:
+    if raw is None:
+        return WhopLink()
+    if not isinstance(raw, dict):
+        raise CampaignError(f"{origin}: 'whop' must be a mapping")
+    url = str(raw.get("campaign_url") or "").strip()
+    bounty = str(raw.get("bounty_id") or "").strip()
+    if url and not _WHOP_URL.match(url):
+        raise CampaignError(f"{origin}: whop.campaign_url must be an https://whop.com/ URL")
+    if bounty and not _BOUNTY_ID.match(bounty):
+        raise CampaignError(f"{origin}: whop.bounty_id must look like bnty_XXXX, got {bounty!r}")
+    return WhopLink(campaign_url=url, bounty_id=bounty)
 
 
 def _collect_sources(source: Any, origin: str) -> list[str]:

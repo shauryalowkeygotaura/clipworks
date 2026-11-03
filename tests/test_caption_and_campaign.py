@@ -142,8 +142,11 @@ def test_built_caption_satisfies_its_own_campaign_rules():
     campaign = parse(RAW)
     c = clip()
     caption = build(c, campaign)
+    # The real shape: the video URL is NOT itself whitelisted, the channel it
+    # was resolved from is. This used to be faked by overwriting source_video
+    # with the channel URL, which hid that every channel clip failed.
     verdict = check(
-        RenderedClip(**{**c.__dict__, "source_video": next(iter(campaign.allowed_sources))}),
+        RenderedClip(**{**c.__dict__, "origin": next(iter(campaign.allowed_sources))}),
         caption, campaign, "instagram", posted_today=0,
     )
     assert verdict.ok, verdict.reasons

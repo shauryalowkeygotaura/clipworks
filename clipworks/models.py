@@ -38,6 +38,11 @@ class RenderedClip:
     duration: float
     source_video: str
     hook: str = ""
+    # The campaign source (channel / playlist / video URL) this clip's video
+    # was resolved FROM. Needed because `sources.resolve` expands a channel
+    # into watch?v= URLs, and only the channel URL is in allowed_sources.
+    # Without provenance every channel-sourced clip fails compliance.
+    origin: str = ""
 
     @property
     def clip_id(self) -> str:
@@ -74,6 +79,25 @@ class PublikclipSettings:
     camera: str = "cut"
 
 
+# Where a campaign came from, which decides how a posted clip gets paid.
+# "whop": submitted to a Whop bounty or Content Rewards campaign.
+# "discord_direct": a streamer pays direct; submission is whatever their
+# Discord asks for, so it is always a manual handoff.
+CAMPAIGN_SOURCES = frozenset({"whop", "discord_direct"})
+
+
+@dataclass(frozen=True)
+class WhopLink:
+    """How posted clips reach Whop.
+
+    `bounty_id` set: submitted via the public Bounty Submissions API.
+    Only `campaign_url` set: Content Rewards has no submission API, so the
+    clip URL is queued for a one-tap manual submit and pinged to Discord.
+    """
+    campaign_url: str = ""
+    bounty_id: str = ""
+
+
 @dataclass(frozen=True)
 class Campaign:
     slug: str
@@ -83,6 +107,26 @@ class Campaign:
     publikclip: PublikclipSettings = field(default_factory=PublikclipSettings)
     rate_per_1k_views_usd: float | None = None
     budget_remaining_usd: float | None = None
+    # (platform, posts_per_day). Empty means "use DEFAULT_POSTS_PER_DAY".
+    cadence: tuple[tuple[str, int], ...] = ()
+    source_kind: str = "whop"
+    whop: WhopLink = field(default_factory=WhopLink)
+
+    def posts_per_day(self, platform: str) -> int:
+        for name, n in self.cadence:
+            if name == platform:
+                return n
+        return DEFAULT_POSTS_PER_DAY.get(platform, 1)
+
+
+# Conservative per-account defaults. YouTube's is bounded by quota: an upload
+# costs 1,600 of the default 10,000 daily units, so 6 is the hard ceiling and
+# 3 leaves room for retries and the stats calls reconciliation makes.
+DEFAULT_POSTS_PER_DAY: dict[str, int] = {
+    "instagram": 2,
+    "youtube": 3,
+    "tiktok": 3,
+}
 
 
 @dataclass(frozen=True)

@@ -1,0 +1,37 @@
+# Copy to campaigns/active/<slug>.yaml and edit. Or let `clipworks brief`
+# draft one from a pasted brief. Every field is validated at load time; a
+# typo fails loudly instead of posting to the wrong place.
+slug: example-creator
+source_kind: whop            # whop | discord_direct
+platforms: [instagram, youtube, tiktok]
+
+source:                      # only these may be clipped
+  channels: ["https://www.youtube.com/@examplecreator"]
+  playlists: []
+  videos: []
+
+rules:                       # copy these from the brief VERBATIM
+  min_duration_sec: 15
+  max_duration_sec: 60
+  required_hashtags: ["#examplecreator"]
+  required_credit_text: "@examplecreator"
+  caption_template: "{hook}\n\n{credit} {hashtags}"
+  banned_styles: [ai_voiceover]   # unknown styles fail closed
+  per_clipper_daily_cap: 3        # across all platforms
+
+cadence:                     # optional; defaults ig 2, yt 3, tiktok 3
+  instagram: 1
+  youtube: 1
+  tiktok: 1
+
+publikclip:
+  llm: groq
+  captions: default
+  camera: cut
+
+payout:
+  rate_per_1k_views_usd: 1.0
+
+whop:
+  campaign_url: "https://whop.com/discover/example/"   # Content Rewards: manual submit
+  # bounty_id: bnty_XXXX                               # Bounty: submitted via API

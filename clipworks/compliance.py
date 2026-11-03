@@ -97,7 +97,13 @@ def check(
     if rules.required_credit_text and rules.required_credit_text.lower() not in lowered:
         reasons.append(f"caption missing required credit text {rules.required_credit_text!r}")
 
-    if clip.source_video not in campaign.allowed_sources:
+    # Either the video itself is whitelisted, or it was resolved from a
+    # whitelisted channel/playlist. `origin` is set by the pipeline from the
+    # yt-dlp listing of that source, never from anything the clip claims.
+    if (
+        clip.source_video not in campaign.allowed_sources
+        and clip.origin not in campaign.allowed_sources
+    ):
         reasons.append(f"source video {clip.source_video!r} is not in the campaign's allowed sources")
 
     if posted_today >= rules.per_clipper_daily_cap:

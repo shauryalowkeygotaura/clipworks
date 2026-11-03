@@ -1,11 +1,14 @@
 [project]
 name = "clipworks"
-version = "0.1.0"
+version = "0.2.0"
 description = "Long-form video to auto-posted vertical clips. Orchestrates publikclip."
 requires-python = ">=3.12"
 dependencies = [
     "pyyaml>=6.0",
 ]
+
+[project.scripts]
+clipworks = "clipworks.cli:main"
 
 [dependency-groups]
 dev = [
@@ -21,3 +24,4 @@ packages = ["clipworks"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+pythonpath = ["tests"]

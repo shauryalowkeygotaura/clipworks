@@ -46,6 +46,12 @@ class PostRecord:
     # which kind each post belonged to is how the realised payment rate of each
     # channel becomes visible instead of being a hunch.
     campaign_source: str = "whop"     # "whop" | "discord_direct"
+    # Submission lifecycle. `whop_status` mirrors Whop's own values
+    # (submitted / approved / denied) or "manual_pending" when Content Rewards
+    # gave us no API and the operator has to paste the URL in themselves.
+    whop_submission_id: str | None = None
+    whop_status: str | None = None
+    denial_reason: str | None = None
 
     @property
     def posted_day(self) -> str:
@@ -54,6 +60,9 @@ class PostRecord:
     @property
     def succeeded(self) -> bool:
         return self.error is None
+
+
+_FIELDS = frozenset(PostRecord.__dataclass_fields__)
 
 
 def now_iso() -> str:
@@ -115,7 +124,12 @@ class Ledger:
         return record
 
     def reconcile(self, post_id: str, views: int, payout_usd: float | None = None) -> None:
-        """Record observed views as a NEW row. `load` keeps the latest."""
+        """Record observed views as a NEW row. `load` keeps the latest.
+
+        `payout_usd=None` keeps whatever payout is already recorded. The
+        automated view refresh runs daily and knows nothing about money, so
+        letting it write None would erase a payout entered by hand last week.
+        """
         current = self.current().get(post_id)
         if current is None:
             raise KeyError(f"cannot reconcile unknown post {post_id!r}")
@@ -123,10 +137,25 @@ class Ledger:
             replace(
                 current,
                 views=views,
-                payout_usd=payout_usd,
+                payout_usd=payout_usd if payout_usd is not None else current.payout_usd,
                 reconciled_at=now_iso(),
             )
         )
+
+    _UPDATABLE = frozenset({"whop_submission_id", "whop_status", "denial_reason", "payout_usd", "url"})
+
+    def update(self, post_id: str, **changes) -> PostRecord:
+        """Append a new row with `changes` applied. Whitelisted fields only:
+        identity fields (clip, platform, posted_at) are never rewritten."""
+        bad = set(changes) - self._UPDATABLE
+        if bad:
+            raise ValueError(f"cannot update {sorted(bad)} on a ledger row")
+        current = self.current().get(post_id)
+        if current is None:
+            raise KeyError(f"cannot update unknown post {post_id!r}")
+        new = replace(current, **changes)
+        self.append(new)
+        return new
 
     # --- reading ------------------------------------------------------------
 
@@ -143,8 +172,12 @@ class Ledger:
                 if not line:
                     continue
                 try:
-                    out.append(PostRecord(**json.loads(line)))
-                except (json.JSONDecodeError, TypeError):
+                    row = json.loads(line)
+                    # Tolerate rows written by a newer version: unknown keys
+                    # are dropped rather than making the row unreadable.
+                    row = {k: v for k, v in row.items() if k in _FIELDS}
+                    out.append(PostRecord(**row))
+                except (json.JSONDecodeError, TypeError, AttributeError):
                     continue
         return out
 

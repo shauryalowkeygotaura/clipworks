@@ -176,7 +176,7 @@ def read_checkpoint(job_dir: Path, stage: str) -> dict | None:
     return data if isinstance(data, dict) else None
 
 
-def read_outputs(job_dir: Path, source: str) -> list[RenderedClip]:
+def read_outputs(job_dir: Path, source: str, origin: str = "") -> list[RenderedClip]:
     """Turn `<job_dir>/render.json` into RenderedClips.
 
     Clips whose file has vanished are skipped rather than returned: publikclip
@@ -208,6 +208,7 @@ def read_outputs(job_dir: Path, source: str) -> list[RenderedClip]:
                 duration=float(entry.get("duration") or 0.0),
                 source_video=source,
                 hook=hooks.get(index, ""),
+                origin=origin,
             )
         )
     return clips
