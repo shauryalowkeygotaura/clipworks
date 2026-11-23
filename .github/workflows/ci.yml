@@ -1,0 +1,24 @@
+# Tests on every push. Scheduled clip generation is NOT here yet, on purpose:
+#   - publikclip supports macOS + Windows only (no Linux runner path) and runs ASR, diarization
+#     and active-speaker detection on CPU: hours per long video, Windows minutes bill 2x (private repo)
+#   - the orchestrator (python run.py --campaign <slug>) and the IG/YT/TikTok posters are not built
+# Add a scheduled workflow once both exist; until then a cron could only fail and burn minutes.
+name: ci
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+      - name: Tests
+        run: uv run --python 3.12 --group dev pytest -q
